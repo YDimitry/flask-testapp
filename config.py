@@ -21,5 +21,5 @@ class TestConfig(BaseConfig):
 app_config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
-    'test':TestConfig
+    'testing':TestConfig
 }

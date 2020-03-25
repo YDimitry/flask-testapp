@@ -7,7 +7,7 @@ from .. import db
 from ..models import Employee
 
 
-@auth.route('/auth',methods=['GET','POST'])
+@auth.route('/auth', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -20,22 +20,26 @@ def register():
         db.session.commit()
         flash('You have successfully registered! You may now login.')
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html',form=form, title='Register')
+    return render_template('auth/register.html', form=form, title='Register')
 
-@auth.route('/login',methods=['GET','POST'])
+
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         employee = Employee.query.filter_by(email=form.email.data).first()
-        if employee is not None and employee.verify_password(
-                        form.password.data):
-                    # log employee in
-                    login_user(employee)
-                    return redirect(url_for('home.dashboard'))
+        if employee and employee.verify_password(form.password.data):
+            # log employee in
+            login_user(employee)
+            if employee.is_admin:
+                return redirect(url_for('home.admin_dashboard'))
+            else:
+                return redirect(url_for('home.dashboard'))
         else:
             flash('Invalid email or password.')
     # load login template
     return render_template('auth/login.html', form=form, title='Login')
+
 
 @auth.route('/logout')
 @login_required
